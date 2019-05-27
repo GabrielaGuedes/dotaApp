@@ -1,3 +1,15 @@
+C
+A
+D
+C
+B
+B
+B
+C
+B
+C
+C
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
