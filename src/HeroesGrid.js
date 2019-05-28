@@ -8,7 +8,7 @@ class HeroesGrid extends Component {
     if (this.props.heroes.length > 0) {
       return this.props.heroes.map(hero => {
         return (
-          <div className="hero">
+          <div className="hero" onClick={this.handleClick}>
             <img className="imagem" src={"http://cdn.dota2.com" + hero.img} />
             <div className="heroInfo">
               <p className="hero-name">
@@ -24,6 +24,10 @@ class HeroesGrid extends Component {
         );
       });
     }
+  };
+
+  handleClick = () => {
+    alert("clicked");
   };
 
   iconHeroType = type => {
