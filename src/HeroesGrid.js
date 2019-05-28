@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import "./HeroesGrid.css";
 
 class HeroesGrid extends Component {
   state = {};
