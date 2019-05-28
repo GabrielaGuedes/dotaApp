@@ -1,26 +1,26 @@
 import React from "react";
-import "./App.css";
-import Header from "./Header";
-import HeroesGrid from "./HeroesGrid";
+import Header from "./Header.js";
+import HeroesGrid from "./HeroesGrid.js";
+import "./App.js";
+import { getRequestInJSON } from "./request.js";
 
 class App extends React.Component {
   state = {
-    heroes: []
+    heroes: [],
+    heroApiUrl: "https://api.opendota.com/api/heroStats"
   };
 
   componentDidMount() {
-    this.getRequestInJSON("https://api.opendota.com/api/heroStats").then(
-      heroesGot => {
-        this.setState({
-          heroes: heroesGot,
-          allHeroes: heroesGot
-        });
-      }
-    );
+    this.getHeroes().then(heroes => {
+      this.setState({
+        heroes: heroes,
+        allHeroes: heroes
+      });
+    });
   }
 
-  getRequestInJSON = url => {
-    return fetch(url).then(response => response.json());
+  getHeroes = () => {
+    return getRequestInJSON(this.state.heroApiUrl);
   };
 
   filterHeroes = heroSearched => {
@@ -31,12 +31,10 @@ class App extends React.Component {
     } else {
       this.setState(prevState => {
         return {
-          heroes: prevState.allHeroes.filter(function(elem, index, array) {
-            return (
-              elem.localized_name
-                .substring(0, heroSearched.length)
-                .toLowerCase() === heroSearched.toLowerCase()
-            );
+          heroes: prevState.allHeroes.filter((elem, index, array) => {
+            return elem.localized_name
+              .toLowerCase()
+              .includes(heroSearched.toLowerCase());
           })
         };
       });
