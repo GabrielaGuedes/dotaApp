@@ -2,26 +2,21 @@ import React from "react";
 import Header from "./Header.js";
 import HeroesGrid from "./HeroesGrid.js";
 import "./App.js";
-import { getRequestInJSON } from "./request.js";
+import { getHeroes } from "./HttpClient.js";
 
 class App extends React.Component {
   state = {
-    heroes: [],
-    heroApiUrl: "https://api.opendota.com/api/heroStats"
+    heroes: []
   };
 
   componentDidMount() {
-    this.getHeroes().then(heroes => {
+    getHeroes().then(heroes => {
       this.setState({
         heroes: heroes,
         allHeroes: heroes
       });
     });
   }
-
-  getHeroes = () => {
-    return getRequestInJSON(this.state.heroApiUrl);
-  };
 
   filterHeroes = heroSearched => {
     if (heroSearched === "") {

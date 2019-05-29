@@ -1,14 +1,24 @@
 import React, { Component } from "react";
 import "./HeroesGrid.css";
+import { getItems } from "./HttpClient";
 
 class HeroesGrid extends Component {
-  state = {};
+  state = {
+    heroSelected: []
+  };
 
   putHeroesInGrid = () => {
     if (this.props.heroes.length > 0) {
       return this.props.heroes.map(hero => {
         return (
-          <div className="hero" onClick={this.handleClick}>
+          <div
+            className="hero"
+            onClick={() => {
+              this.setState({
+                heroSelected: hero
+              });
+            }}
+          >
             <img className="imagem" src={"http://cdn.dota2.com" + hero.img} />
             <div className="heroInfo">
               <p className="hero-name">
@@ -19,6 +29,7 @@ class HeroesGrid extends Component {
                 />
               </p>
               <p className="hero-main-role">Main role: {hero.roles[0]}</p>
+              {this.displaySelection(hero)}
             </div>
           </div>
         );
@@ -26,8 +37,61 @@ class HeroesGrid extends Component {
     }
   };
 
-  handleClick = () => {
-    alert("clicked");
+  displaySelection = hero => {
+    if (this.state.heroSelected === hero) {
+      this.showMoreInfoFrom(hero);
+      return this.state.mostPopularItem;
+    }
+  };
+
+  showMoreInfoFrom = hero => {
+    let mostPopularItem;
+    getItems(hero.id).then(items => {
+      this.setState(
+        {
+          items: items
+        },
+        () => {
+          mostPopularItem = this.getMostPopularItem(this.state.items);
+          this.setState({ mostPopularItem: mostPopularItem });
+        }
+      );
+    });
+  };
+
+  getMostPopularItem = items => {
+    let mostPopularItem = items[0];
+
+    let itemsNames = [];
+    items.forEach(element => {
+      if (!itemsNames.includes(element.item)) {
+        itemsNames.push(element.item);
+      }
+    });
+
+    let gamesPerItem = [];
+    itemsNames.forEach(() => {
+      gamesPerItem.push(0);
+    });
+
+    itemsNames.forEach((name, nameIndex) => {
+      items.forEach(element => {
+        if (name === element.item) {
+          gamesPerItem[nameIndex] += parseInt(element.games);
+        }
+      });
+    });
+
+    let higherValue = 0;
+    let index;
+    gamesPerItem.forEach((element, elementIndex) => {
+      if (element > higherValue) {
+        higherValue = element;
+        index = elementIndex;
+      }
+    });
+
+    return itemsNames[index];
   };
 
   iconHeroType = type => {
