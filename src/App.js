@@ -53,9 +53,12 @@ class App extends React.Component {
             />
             <Route
               path="/:id"
-              render={props => (
-                <HeroDetailed {...props} heroes={this.state.allHeroes} />
-              )}
+              render={props => {
+                console.log(props);
+                return (
+                  <HeroDetailed {...props} heroes={this.state.allHeroes} />
+                );
+              }}
             />
           </div>
         </div>

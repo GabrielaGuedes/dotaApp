@@ -1,10 +1,17 @@
 import React, { Component } from "react";
-import { getLaneRole, getMatches, getMatchups, getItems } from "./HttpClient";
+import {
+  getLaneRole,
+  getMatches,
+  getMatchups,
+  getItems,
+  getHeroes
+} from "./HttpClient";
 
 class HeroDetailed extends Component {
   state = {
     heroid: this.props.match.params.id,
     hero: "",
+    heroes: [],
     mostPopularItem: "",
     highestWinrateItem: "",
     itemWinrate: 0,
@@ -13,7 +20,8 @@ class HeroDetailed extends Component {
     averageKDA: "",
     highestWinrateRole: "",
     roleWinrate: 0,
-    mainLaneRole: ""
+    mainLaneRole: "",
+    loading: true
   };
 
   componentDidMount() {
@@ -36,18 +44,7 @@ class HeroDetailed extends Component {
         }
       );
     });
-    getMatchups(this.state.heroid).then(matchups => {
-      this.setState(
-        {
-          matchups
-        },
-        () => {
-          this.setState({
-            loosererHero: this.findLoosererHero()
-          });
-        }
-      );
-    });
+
     getMatches(this.state.heroid).then(matches => {
       this.setState(
         {
@@ -75,12 +72,36 @@ class HeroDetailed extends Component {
         }
       );
     });
-    this.setState({
-      hero: this.findHeroByOptionalId()
+
+    getHeroes().then(heroes => {
+      this.setState(
+        {
+          heroes,
+          hero: this.findHeroByOptionalId(heroes)
+        },
+        () => {
+          getMatchups(this.state.heroid).then(matchups => {
+            this.setState(
+              {
+                matchups
+              },
+              () => {
+                this.setState({
+                  loosererHero: this.findLoosererHero()
+                });
+              }
+            );
+          });
+          this.setState({
+            loading: false
+          });
+        }
+      );
     });
   }
 
   render() {
+    if (this.state.loading) return "loading";
     return (
       <div>
         <img
@@ -120,10 +141,8 @@ class HeroDetailed extends Component {
     );
   }
 
-  findHeroByOptionalId = (id = this.state.heroid) => {
-    return this.props.heroes.find(
-      element => parseInt(element.id) === parseInt(id)
-    );
+  findHeroByOptionalId = (heroes, id = this.state.heroid) => {
+    return heroes.find(element => parseInt(element.id) === parseInt(id));
   };
 
   getLaneRoleName = roleNumber => {
@@ -222,8 +241,10 @@ class HeroDetailed extends Component {
     this.setState({
       heroWinrateAgainstLooserer: (highestWinrate * 100).toFixed(2)
     });
-    return this.findHeroByOptionalId(this.state.matchups[index].hero_id)
-      .localized_name;
+    return this.findHeroByOptionalId(
+      this.state.heroes,
+      this.state.matchups[index].hero_id
+    ).localized_name;
   };
 
   calculateAverageKDA = () => {
