@@ -3,6 +3,8 @@ import Header from "./Header.js";
 import HeroesGrid from "./HeroesGrid.js";
 import "./App.js";
 import { getHeroes } from "./HttpClient.js";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import HeroDetailed from "./HeroDetailed.js";
 
 class App extends React.Component {
   state = {
@@ -38,12 +40,26 @@ class App extends React.Component {
 
   render() {
     return (
-      <div>
-        <Header filterHeroes={this.filterHeroes} />
-        <div className="heroes-grid-container">
-          <HeroesGrid heroes={this.state.heroes} />
+      <Router>
+        <div>
+          <Header filterHeroes={this.filterHeroes} />
+          <div className="heroes-grid-container">
+            <Route
+              exact
+              path="/"
+              render={props => (
+                <HeroesGrid {...props} heroes={this.state.heroes} />
+              )}
+            />
+            <Route
+              path="/:id"
+              render={props => (
+                <HeroDetailed {...props} heroes={this.state.allHeroes} />
+              )}
+            />
+          </div>
         </div>
-      </div>
+      </Router>
     );
   }
 }
