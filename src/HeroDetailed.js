@@ -73,30 +73,16 @@ class HeroDetailed extends Component {
       );
     });
 
-    getHeroes().then(heroes => {
-      this.setState(
-        {
-          heroes,
-          hero: this.findHeroByOptionalId(heroes)
-        },
-        () => {
-          getMatchups(this.state.heroid).then(matchups => {
-            this.setState(
-              {
-                matchups
-              },
-              () => {
-                this.setState({
-                  loosererHero: this.findLoosererHero()
-                });
-              }
-            );
-          });
-          this.setState({
-            loading: false
-          });
-        }
-      );
+    Promise.all([getHeroes(), getMatchups(this.state.heroid)]).then(results => {
+      const [heroes, matchups] = results;
+
+      this.setState({
+        heroes,
+        hero: this.findHeroByOptionalId(heroes),
+        matchups,
+        loosererHero: this.findLoosererHero(matchups, heroes),
+        loading: false
+      });
     });
   }
 
@@ -229,22 +215,22 @@ class HeroDetailed extends Component {
     return itemsNames[index];
   };
 
-  findLoosererHero = () => {
+  findLoosererHero = (matchups, heroes) => {
     let highestWinrate = 0;
     let index;
-    this.state.matchups.forEach((element, elementIndex) => {
+    matchups.forEach((element, elementIndex) => {
       if (element.wins / element.games_played > highestWinrate) {
         highestWinrate = element.wins / element.games_played;
         index = elementIndex;
       }
     });
+
     this.setState({
       heroWinrateAgainstLooserer: (highestWinrate * 100).toFixed(2)
     });
-    return this.findHeroByOptionalId(
-      this.state.heroes,
-      this.state.matchups[index].hero_id
-    ).localized_name;
+
+    return this.findHeroByOptionalId(heroes, matchups[index].hero_id)
+      .localized_name;
   };
 
   calculateAverageKDA = () => {
