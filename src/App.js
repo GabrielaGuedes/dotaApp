@@ -2,26 +2,23 @@ import React from "react";
 import Header from "./Header.js";
 import HeroesGrid from "./HeroesGrid.js";
 import "./App.js";
-import { getRequestInJSON } from "./request.js";
+import { getHeroes } from "./HttpClient.js";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import HeroDetailed from "./HeroDetailed.js";
 
 class App extends React.Component {
   state = {
-    heroes: [],
-    heroApiUrl: "https://api.opendota.com/api/heroStats"
+    heroes: []
   };
 
   componentDidMount() {
-    this.getHeroes().then(heroes => {
+    getHeroes().then(heroes => {
       this.setState({
         heroes: heroes,
         allHeroes: heroes
       });
     });
   }
-
-  getHeroes = () => {
-    return getRequestInJSON(this.state.heroApiUrl);
-  };
 
   filterHeroes = heroSearched => {
     if (heroSearched === "") {
@@ -43,12 +40,29 @@ class App extends React.Component {
 
   render() {
     return (
-      <div>
-        <Header filterHeroes={this.filterHeroes} />
-        <div className="heroes-grid-container">
-          <HeroesGrid heroes={this.state.heroes} />
+      <Router>
+        <div>
+          <Header filterHeroes={this.filterHeroes} />
+          <div className="heroes-grid-container">
+            <Route
+              exact
+              path="/"
+              render={props => (
+                <HeroesGrid {...props} heroes={this.state.heroes} />
+              )}
+            />
+            <Route
+              path="/:id"
+              render={props => {
+                console.log(props);
+                return (
+                  <HeroDetailed {...props} heroes={this.state.allHeroes} />
+                );
+              }}
+            />
+          </div>
         </div>
-      </div>
+      </Router>
     );
   }
 }
